@@ -10,11 +10,12 @@ List = ({
     keyExtractor,
     renderItem
 }) => {
+    console.log(data)
     return (
         <FlatList
             data={data}
-            keyExtractor={keyExtractor}
-            renderItem={renderItem}
+            keyExtractor={({ item }) => data.id}
+            renderItem={({ item }) => renderItem(item)}
         />
     );
 };

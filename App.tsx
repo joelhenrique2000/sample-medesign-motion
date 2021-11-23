@@ -18,6 +18,9 @@ import CriarOvoQuebrado from './src/screens/OvoQuebrado/Criar'
 import EditarOvoQuebrado from './src/screens/OvoQuebrado/Editar'
 
 import { NativeBaseProvider } from 'native-base';
+import { createServer } from "miragejs"
+
+
 
 const Stack = createNativeStackNavigator();
 

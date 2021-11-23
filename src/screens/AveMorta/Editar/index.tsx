@@ -1,34 +1,72 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {  Button, ScrollView, FormControl } from 'native-base';
 import { Container, Item,
   InputText, } from './styles';
 import { Header } from '../../../components/Header';
-import { useForm, Controller } from 'react-hook-form'
+import { atualizarPorId, obterPorId, removerPorId } from '../../../services/aveMorta';
+import { Controller, useForm } from 'react-hook-form';
 import { Text } from 'react-native';
-import { inserir } from '../../../services/aveMorta';
 
-export default function CriarAveMorta({ navigation }) {
+interface IAveMorta {
+  id: string;
+  incubadora: string;
+  temperatura: number;
+  quantidade: number;
+  createdAt: Date;
+}
 
-  const { control, handleSubmit, formState: { errors } } = useForm({
+interface IAveMortaAtualizar {
+  incubadora: string;
+  temperatura: string;
+  quantidade: string;
+}
+
+export default function EditarAveMorta({ navigation, route }) {
+
+  const { id } = route.params;
+
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm({
     defaultValues: {
+      id: '',
       quantidade: '',
       incubadora: '',
       temperatura: '',
+      createdAt: ''
     }
   });
+
+  useEffect(() => {
+    obterPorId(id, {})
+      .then(response => {
+        const {
+          id,
+          incubadora,
+          quantidade,
+          temperatura,
+          createdAt
+        }: IAveMorta = response.data;
+
+        setValue('id', id);
+        setValue('incubadora', incubadora);
+        setValue('quantidade', quantidade.toString());
+        setValue('temperatura', temperatura.toString());
+        setValue('createdAt', createdAt.toString());
+      })
+      .catch(err => console.error('Ops! aconteceu algo inesperado. ' + err))
+  }, [])
 
   const onSubmit = ({
     quantidade,
     incubadora,
     temperatura
-  }) => {
-    inserir({
+  }: IAveMortaAtualizar) => {
+    atualizarPorId(id, {
       quantidade: parseInt(quantidade),
       incubadora,
       temperatura: parseFloat(temperatura)
     })
       .then(response => {
-        if (response.status === 201) {
+        if (response.status === 200) {
           navigation.navigate('ListarAveMorta')
         } else {
           throw new Error('Error' + response.status);
@@ -36,19 +74,30 @@ export default function CriarAveMorta({ navigation }) {
       })
       .catch(err => console.error('Ops! aconteceu algo inesperado. ' + err))
   };
+
+  const onDelete = (id: string) => {
+    removerPorId(id)
+      .then(response => {
+        if (response.status === 200) {
+          navigation.navigate('ListarAveMorta')
+        } else {
+          throw new Error('Error' + response.status);
+        }
+      })
+      .catch(err => console.error('Ops! aconteceu algo inesperado. ' + err))
+  }
   
   return (
     <>
       <Header
-        title="Cadastrar ave morta"
+        title="Editar ave morta"
         onPress={() => {
           navigation.goBack()
         }}
       />
       <Container>
         <ScrollView>
-
-          <FormControl.Label>Quantidade</FormControl.Label>
+        <FormControl.Label>Quantidade</FormControl.Label>
           <Controller
             control={control}
             rules={{
@@ -57,6 +106,7 @@ export default function CriarAveMorta({ navigation }) {
             render={({ field: { onChange, onBlur, value } }) => (
               <InputText
                 width="full"
+                keyboardType="decimal-pad"
                 size="xl"
                 placeholder="Quantidade"
                 onBlur={onBlur}
@@ -98,6 +148,7 @@ export default function CriarAveMorta({ navigation }) {
               <InputText
                 width="full"
                 size="xl"
+                keyboardType="decimal-pad"
                 placeholder="Temperatura"
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -108,13 +159,44 @@ export default function CriarAveMorta({ navigation }) {
           />
           {errors.temperatura && <Text>Este campo é obrigatório.</Text>}
 
+          <FormControl.Label>Data</FormControl.Label>
+          <Controller
+            control={control}
+            rules={{
+            required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <InputText
+                width="full"
+                size="xl"
+                placeholder="Data"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                editable={false} 
+                selectTextOnFocus={false}
+                value={value}
+              />
+            )}
+            name="createdAt"
+          />
+          {errors.createdAt && <Text>Este campo é obrigatório.</Text>}
+
           <Button
             size="50"
             backgroundColor="green.600"
             width="full"
             onPress={handleSubmit(onSubmit)}
           >
-            Cadastrar ave morta
+            Concluir edição
+          </Button>
+
+          <Button
+            size="50"
+            backgroundColor="red.600"
+            width="full"
+            onPress={() => onDelete(id)}
+          >
+            remover
           </Button>
         </ScrollView>
       </Container>
