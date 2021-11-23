@@ -4,6 +4,7 @@ import { Container, Item } from './styles';
 import { Header } from '../../../components/Header';
 import { obterTudo } from '../../../services/ovoQuebrado';
 import { FlatList, RefreshControl } from 'react-native';
+import { format } from 'date-fns'
 
 interface IOvoQuebrado {
   _id: string;
@@ -58,7 +59,7 @@ export default function ListaOvoQuebrado({ navigation }) {
                 <Item
                   id={item._id}
                   title={`${item.quantidade} ovo(s) quebrado(s)`}
-                  date={item.createdAt}
+                  date={format(new Date(item.createdAt), "dd/MM/yyyy 'às' hh:mm")}
                   onPress={() => {
                     navigation.navigate('EditarOvoQuebrado', {
                       id: item._id

@@ -6,6 +6,7 @@ import { Header } from '../../../components/Header';
 import { atualizarPorId, obterPorId, removerPorId } from '../../../services/aveMorta';
 import { Controller, useForm } from 'react-hook-form';
 import { Text } from 'react-native';
+import { format } from 'date-fns'
 
 interface IAveMorta {
   id: string;
@@ -50,7 +51,7 @@ export default function EditarAveMorta({ navigation, route }) {
         setValue('incubadora', incubadora);
         setValue('quantidade', quantidade.toString());
         setValue('temperatura', temperatura.toString());
-        setValue('createdAt', createdAt.toString());
+        setValue('createdAt', format(new Date(createdAt), "dd/MM/yyyy 'às' hh:mm"));
       })
       .catch(err => console.error('Ops! aconteceu algo inesperado. ' + err))
   }, [])

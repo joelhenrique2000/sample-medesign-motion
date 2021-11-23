@@ -5,6 +5,7 @@ import { Header } from '../../../components/Header';
 import { List } from '../../../components/List';
 import { FlatList, RefreshControl, View } from 'react-native';
 import { obterTudo } from '../../../services/aveMorta';
+import { format } from 'date-fns'
 
 interface IAveMorta {
   _id: string;
@@ -59,7 +60,7 @@ export default function ListarAveMorta({ navigation }) {
                 <Item
                   id={item._id}
                   title={`${item.quantidade} ovo(s) quebrado(s)`}
-                  date={item.createdAt}
+                  date={format(new Date(item.createdAt), "dd/MM/yyyy 'às' hh:mm")}
                   onPress={() => {
                     navigation.navigate('EditarAveMorta', {
                       id: item._id
